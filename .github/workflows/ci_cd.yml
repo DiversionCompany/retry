@@ -1,40 +1,43 @@
 name: CI/CD
 on:
+  # only on PRs into and merge to default branch
+  pull_request:
+    branches:
+      - master
   push:
+    branches:
+      - master
 
 jobs:
-  # runs on branch pushes only
   ci_unit:
     name: Run Unit Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Run Unit Tests
         run: npm test
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v5
         with:
           directory: ./coverage/
           verbose: true
 
   ci_integration:
     name: Run Integration Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -45,7 +48,7 @@ jobs:
           timeout_minutes: 1
           max_attempts: 2
           command: npm -v
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: true
           actual: ${{ steps.happy_path.outputs.total_attempts == '1' && steps.happy_path.outputs.exit_code == '0' }}
@@ -64,11 +67,11 @@ jobs:
           timeout_minutes: 1
           max_attempts: 2
           command: node -e "process.exit(1)"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.sad_path_error.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.sad_path_error.outcome }}
@@ -82,15 +85,15 @@ jobs:
           max_attempts: 3
           retry_on: timeout
           command: node -e "process.exit(2)"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 1
           actual: ${{ steps.retry_on_timeout_fail.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_timeout_fail.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.retry_on_timeout_fail.outputs.exit_code }}
@@ -104,15 +107,15 @@ jobs:
           max_attempts: 2
           retry_on: error
           command: node -e "process.exit(2)"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.retry_on_error.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_error.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.retry_on_error.outputs.exit_code }}
@@ -126,26 +129,25 @@ jobs:
           max_attempts: 2
           shell: cmd
           command: 'dir'
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.wrong_shell.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.wrong_shell.outcome }}
 
   ci_integration_envvar:
     name: Run Integration Env Var Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: env-vars-passed-through
@@ -159,15 +161,14 @@ jobs:
 
   ci_integration_large_output:
     name: Run Integration Large Output Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Test 100MiB of output can be processed
@@ -179,27 +180,26 @@ jobs:
           timeout_minutes: 5
           command: 'make -C ./test-data/large-output bytes-102400'
       - name: Assert test had expected result
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.large-output.outcome }}
       - name: Assert exit code is expected
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.large-output.outputs.exit_code }}
 
   ci_integration_retry_on_exit_code:
     name: Run Integration retry_on_exit_code Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: retry_on_exit_code (with expected error code)
@@ -211,11 +211,11 @@ jobs:
           retry_on_exit_code: 2
           max_attempts: 3
           command: node -e "process.exit(2)"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_exit_code_expected.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 3
           actual: ${{ steps.retry_on_exit_code_expected.outputs.total_attempts }}
@@ -229,26 +229,25 @@ jobs:
           retry_on_exit_code: 2
           max_attempts: 3
           command: node -e "process.exit(1)"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_exit_code_unexpected.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 1
           actual: ${{ steps.retry_on_exit_code_unexpected.outputs.total_attempts }}
 
   ci_integration_continue_on_error:
     name: Run Integration continue_on_error Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: happy-path (continue_on_error)
@@ -266,37 +265,36 @@ jobs:
           timeout_minutes: 1
           continue_on_error: true
       - name: Verify continue_on_error returns correct exit code on success
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: 0
           actual: ${{ steps.happy_path_continue_on_error.outputs.exit_code }}
       - name: Verify continue_on_error exits with correct outcome on success
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: success
           actual: ${{ steps.happy_path_continue_on_error.outcome }}
       - name: Verify continue_on_error returns correct exit code on error
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: 33
           actual: ${{ steps.sad_path_continue_on_error.outputs.exit_code }}
       - name: Verify continue_on_error exits with successful outcome when an error occurs
-        uses: nick-invision/assert-action@v1
+        uses: nick-fields/assert-action@v2
         with:
           expected: success
           actual: ${{ steps.sad_path_continue_on_error.outcome }}
 
   ci_integration_retry_wait_seconds:
     name: Run Integration Tests (retry_wait_seconds)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -309,15 +307,15 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 15
           command: npm install this-isnt-a-real-package-name-zzz
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 3
           actual: ${{ steps.sad_path_wait_sec.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.sad_path_wait_sec.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 'Final attempt failed'
           actual: ${{ steps.sad_path_wait_sec.outputs.exit_error }}
@@ -325,15 +323,14 @@ jobs:
 
   ci_integration_on_retry_cmd:
     name: Run Integration Tests (on_retry_command)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -369,15 +366,14 @@ jobs:
   # timeout tests take longer to run so run in parallel
   ci_integration_timeout_seconds:
     name: Run Integration Timeout Tests (seconds)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -389,26 +385,25 @@ jobs:
           timeout_seconds: 15
           max_attempts: 2
           command: node -e "(async()=>await new Promise(r => setTimeout(r, 120000)))()"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.sad_path_timeout.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.sad_path_timeout.outcome }}
 
   ci_integration_timeout_retry_on_timeout:
     name: Run Integration Timeout Tests (retry_on timeout)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -421,26 +416,25 @@ jobs:
           max_attempts: 2
           retry_on: timeout
           command: node -e "(async()=>await new Promise(r => setTimeout(r, 120000)))()"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.retry_on_timeout.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_timeout.outcome }}
 
   ci_integration_timeout_retry_on_error:
     name: Run Integration Timeout Tests (retry_on error)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -453,30 +447,29 @@ jobs:
           max_attempts: 2
           retry_on: error
           command: node -e "(async()=>await new Promise(r => setTimeout(r, 120000)))()"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 1
           actual: ${{ steps.retry_on_error_fail.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.retry_on_error_fail.outcome }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 1
           actual: ${{ steps.retry_on_error_fail.outputs.exit_code }}
 
   ci_integration_timeout_minutes:
     name: Run Integration Timeout Tests (minutes)
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
 
@@ -488,26 +481,25 @@ jobs:
           timeout_minutes: 1
           max_attempts: 2
           command: node -e "(async()=>await new Promise(r => setTimeout(r, 120000)))()"
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: 2
           actual: ${{ steps.sad_path_timeout_minutes.outputs.total_attempts }}
-      - uses: nick-invision/assert-action@v1
+      - uses: nick-fields/assert-action@v2
         with:
           expected: failure
           actual: ${{ steps.sad_path_timeout_minutes.outcome }}
 
   ci_windows:
     name: Run Windows Tests
-    if: startsWith(github.ref, 'refs/heads')
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Powershell test
@@ -571,7 +563,7 @@ jobs:
     steps:
       - run: echo "If this is hit, all tests successfully passed"
 
-  # runs on push to master only
+  # runs on merge to default only
   cd:
     name: Publish Action
     needs: [ci_all_tests_passed]
@@ -579,19 +571,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 24
       - name: Install dependencies
         run: npm ci
       - name: Release
         id: semantic
-        uses: cycjimmy/semantic-release-action@v2
+        uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Tag
+        # only bump v# (e.g., v3) tag if semantic release action publishes any new version
+        if: ${{ steps.semantic.outputs.new_release_major_version != '' }}
         run: git tag -f v${MAJOR_VERSION} && git push -f origin v${MAJOR_VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

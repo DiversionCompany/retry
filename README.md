@@ -2,8 +2,6 @@
 
 Retries an Action step on failure or timeout. This is currently intended to replace the `run` step for moody commands.
 
-**NOTE:** Ownership of this project was transferred to my personal account `nick-fields` from my work account `nick-invision`. Details [here](#Ownership)
-
 ---
 
 ## Inputs
@@ -79,7 +77,7 @@ The final error returned by the command
 ### Shell
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_minutes: 10
   max_attempts: 3
@@ -90,7 +88,7 @@ with:
 ### Timeout in minutes
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_minutes: 10
   max_attempts: 3
@@ -100,7 +98,7 @@ with:
 ### Timeout in seconds
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_seconds: 15
   max_attempts: 3
@@ -110,7 +108,7 @@ with:
 ### Only retry after timeout
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_seconds: 15
   max_attempts: 3
@@ -121,7 +119,7 @@ with:
 ### Only retry after error
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_seconds: 15
   max_attempts: 3
@@ -132,7 +130,7 @@ with:
 ### Retry using continue_on_error input (in composite action) but allow failure and do something with output
 
 ```yaml
-- uses: nick-fields/retry@v2
+- uses: nick-fields/retry@v3
   id: retry
   with:
     timeout_seconds: 15
@@ -154,7 +152,7 @@ with:
 ### Retry using continue-on-error built-in command (in workflow action) but allow failure and do something with output
 
 ```yaml
-- uses: nick-fields/retry@v2
+- uses: nick-fields/retry@v3
   id: retry
   # see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idcontinue-on-error
   continue-on-error: true
@@ -183,7 +181,7 @@ with:
 ### Run script after failure but before retry
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_seconds: 15
   max_attempts: 3
@@ -194,7 +192,7 @@ with:
 ### Run different command after first failure
 
 ```yaml
-uses: nick-fields/retry@v2
+uses: nick-fields/retry@v3
 with:
   timeout_seconds: 15
   max_attempts: 3
@@ -206,7 +204,7 @@ with:
 
 ```yaml
 name: Multi-line multi-command Test
-uses: ./
+uses: nick-fields/retry@v3
 with:
   timeout_minutes: 1
   max_attempts: 2
@@ -219,7 +217,7 @@ with:
 
 ```yaml
 name: Multi-line single-command Test
-uses: ./
+uses: nick-fields/retry@v3
 with:
   timeout_minutes: 1
   max_attempts: 2
@@ -239,4 +237,4 @@ NodeJS is required for this action to run. This runs without issue on all GitHub
 
 As of 2022/02/15 ownership of this project has been transferred to my personal account `nick-fields` from my work account `nick-invision` due to me leaving InVision. I am the author and have been the primary maintainer since day one and will continue to maintain this as needed.
 
-Existing workflow references to `nick-invision/retry@<whatever>` no longer work and must be updated to `nick-fields/retry@<whatever>`.
+Existing workflow references to `nick-invision/retry@<whatever>` must be updated to `nick-fields/retry@<whatever>`.
